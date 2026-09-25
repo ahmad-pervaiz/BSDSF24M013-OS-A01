@@ -1,3 +1,5 @@
+PREFIX ?= /usr/local
+
 all: lib/libmyutils.a lib/libmyutils.so bin/client_static bin/client_dynamic
 
 obj/mystrfunctions.o: src/mystrfunctions.c
@@ -21,6 +23,17 @@ bin/client_static: obj/main.o lib/libmyutils.a
 bin/client_dynamic: obj/main.o lib/libmyutils.so
 	gcc obj/main.o -Llib -lmyutils -o bin/client_dynamic
 
- #Clean 
- clean:
+install: all
+	install -d $(PREFIX)/bin $(PREFIX)/lib $(PREFIX)/share/man/man3
+	install -m 755 bin/client_dynamic $(PREFIX)/bin/client
+	install -m 755 lib/libmyutils.so $(PREFIX)/lib/
+	install -m 644 man/man3/*.3 $(PREFIX)/share/man/man3/
+	ldconfig || true
+
+uninstall:
+	rm -f $(PREFIX)/bin/client
+	rm -f $(PREFIX)/lib/libmyutils.so
+	rm -f $(PREFIX)/share/man/man3/mystr*.3 $(PREFIX)/share/man/man3/mycat.1 $(PREFIX)/share/man/man3/wordCount.3 $(PREFIX)/share/man/man3/mygrep.3
+
+clean:
 	rm -f obj/*.o bin/* lib/*
